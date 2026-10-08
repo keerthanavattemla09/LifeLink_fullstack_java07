@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink - My Requests</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body onload="loadRequests()">
+
+    <div id="shell"></div>
+
+    <main class="page">
+
+        <h1>My Requests</h1>
+
+        <p>
+            Track your organ requests and their current status.
+        </p>
+
+        <section class="card">
+
+            <h3>Request History</h3>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Organ</th>
+                            <th>Blood Group</th>
+                            <th>Hospital</th>
+                            <th>Priority Score</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="requestRows">
+
+                        <tr>
+
+                            <td colspan="6">
+                                Loading requests...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

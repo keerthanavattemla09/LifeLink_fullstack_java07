@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body onload="loadDashboard()">
+
+    <header class="topbar">
+
+        <a
+            class="logo"
+            href="dashboard.html">
+
+            ♥ <b>Life</b>Link
+
+        </a>
+
+        <div id="topUser">
+
+            Demo User
+
+            <button
+                class="linkbtn"
+                onclick="logout()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <div class="layout">
+
+        <aside>
+
+            <div class="side-title">
+                USER MENU
+            </div>
+
+            <a href="dashboard.html">
+                ▦ Dashboard
+            </a>
+
+            <a href="organs.html">
+                ♥ Available Organs
+            </a>
+
+            <a href="matching.html">
+                ⚙ Organ Matching
+            </a>
+
+            <a href="requests.html">
+                ▤ My Requests
+            </a>
+
+            <a href="hospitals.html">
+                ▣ Hospital Directory
+            </a>
+
+            <a href="help.html">
+                ◉ Multilingual AI Help
+            </a>
+
+        </aside>
+
+        <main class="page">
+
+            <section class="hero">
+
+                <div>
+
+                    <h1>
+                        Every Match Can Save a Life.
+                    </h1>
+
+                    <p>
+                        Connecting recipients, hospitals and
+                        synthetic organ inventory through a
+                        transparent priority-based prototype.
+                    </p>
+
+                </div>
+
+                <div class="hero-icon">
+                    ♥
+                </div>
+
+            </section>
+
+            <h2>Dashboard</h2>
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <b id="organsCount">
+                        0
+                    </b>
+
+                    <span>
+                        Available organs
+                    </span>
+
+                </div>
+
+                <div class="stat">
+
+                    <b id="hospitalCount">
+                        0
+                    </b>
+
+                    <span>
+                        Registered hospitals
+                    </span>
+
+                </div>
+
+                <div class="stat">
+
+                    <b id="requestCount">
+                        0
+                    </b>
+
+                    <span>
+                        My requests
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="grid-2">
+
+                <section class="card">
+
+                    <h3>
+                        Recipient Profile
+                    </h3>
+
+                    <div id="profile"></div>
+
+                </section>
+
+                <section class="card">
+
+                    <h3>
+                        Quick Actions
+                    </h3>
+
+                    <a
+                        class="action"
+                        href="organs.html">
+
+                        🔎 Browse Available Organs
+
+                    </a>
+
+                    <a
+                        class="action"
+                        href="matching.html">
+
+                        🧠 Run Matching Engine
+
+                    </a>
+
+                    <a
+                        class="action"
+                        href="requests.html">
+
+                        📋 Track My Requests
+
+                    </a>
+
+                    <a
+                        class="action"
+                        href="hospitals.html">
+
+                        🗺 Find Hospitals
+
+                    </a>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

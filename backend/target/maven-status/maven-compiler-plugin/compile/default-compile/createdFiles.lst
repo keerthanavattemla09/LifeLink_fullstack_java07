@@ -1,0 +1,15 @@
+com\lifelink\model\Hospital.class
+com\lifelink\config\DataSeeder.class
+com\lifelink\model\OrganRequest.class
+com\lifelink\config\CorsConfig$1.class
+com\lifelink\repository\OrganRepository.class
+com\lifelink\model\Organ.class
+com\lifelink\repository\HospitalRepository.class
+com\lifelink\service\MatchingService.class
+com\lifelink\config\CorsConfig.class
+com\lifelink\model\User.class
+com\lifelink\repository\OrganRequestRepository.class
+com\lifelink\controller\AppController.class
+com\lifelink\LifeLinkApplication.class
+com\lifelink\config\AuthController.class
+com\lifelink\repository\UserRepository.class

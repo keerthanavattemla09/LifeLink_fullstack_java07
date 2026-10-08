@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink - Hospital Directory</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+</head>
+
+<body onload="loadHospitals()">
+
+    <div id="shell"></div>
+
+    <main class="page">
+
+        <h1>Hospital Directory</h1>
+
+        <p>
+            Explore registered demo hospitals and their locations.
+        </p>
+
+        <section class="card">
+
+            <h3>Registered Hospitals</h3>
+
+            <div id="hospitalCards">
+
+                <p>
+                    Loading hospitals...
+                </p>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <h3>Hospital Map</h3>
+
+            <div
+                id="map"
+                style="height: 450px; width: 100%; border-radius: 12px;">
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Leaflet JS -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

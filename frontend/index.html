@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LifeLink</title><link rel="stylesheet" href="style.css">
+</head>
+<body class="login-bg">
+<div class="login-card">
+<div class="brand">♥ Life<span>Link</span></div>
+<h1>Welcome Back</h1><p>Priority-based organ matching and transplant coordination</p>
+<div id="error" class="alert hidden"></div>
+<div class="roles">
+<label><input type="radio" name="role" value="user" checked><span>👤 User</span></label>
+<label><input type="radio" name="role" value="hospital"><span>🏥 Hospital</span></label>
+<label><input type="radio" name="role" value="admin"><span>🛡 Admin</span></label>
+</div>
+<label>Username</label><input id="username" placeholder="Enter username">
+<label>Password</label><input id="password" type="password" placeholder="Enter password">
+<button class="primary full" onclick="login()">Login to Dashboard →</button>
+<div class="demo"><b>Demo credentials</b><br>User: user / user123<br>Hospital: hospital / hosp123<br>Admin: admin / admin123</div>
+</div>
+<script src="app.js"></script>
+
+</body></html>

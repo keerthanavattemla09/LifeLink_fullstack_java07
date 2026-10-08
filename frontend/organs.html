@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink - Available Organs</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body onload="loadOrgans()">
+
+    <div id="shell"></div>
+
+    <main class="page">
+
+        <h1>Organ Inventory</h1>
+
+        <p>
+            Explore available organs registered by demo hospitals.
+        </p>
+
+        <div class="toolbar">
+
+            <input
+                id="search"
+                oninput="filterCards()"
+                placeholder="Search organ or hospital..."
+            >
+
+            <select
+                id="blood"
+                onchange="filterCards()">
+
+                <option value="">
+                    All blood groups
+                </option>
+
+                <option value="A+">
+                    A+
+                </option>
+
+                <option value="B+">
+                    B+
+                </option>
+
+                <option value="AB+">
+                    AB+
+                </option>
+
+                <option value="O+">
+                    O+
+                </option>
+
+            </select>
+
+        </div>
+
+        <div
+            id="organCards"
+            class="cards">
+        </div>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

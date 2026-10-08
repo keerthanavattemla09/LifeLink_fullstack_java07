@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink - Multilingual AI Help</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="loadHelp()">
+
+    <div id="shell"></div>
+
+    <main class="page">
+
+        <h1>Multilingual AI Help</h1>
+
+        <p>
+            Get simple information about organ matching,
+            requests and the LifeLink platform.
+        </p>
+
+        <section class="card">
+
+            <h3>Select Language</h3>
+
+            <select id="helpLanguage">
+
+                <option value="english">
+                    English
+                </option>
+
+                <option value="telugu">
+                    Telugu
+                </option>
+
+                <option value="hindi">
+                    Hindi
+                </option>
+
+                <option value="tamil">
+                    Tamil
+                </option>
+
+            </select>
+
+        </section>
+
+        <section class="card">
+
+            <h3>How can we help?</h3>
+
+            <div class="help-buttons">
+
+                <button
+                    class="btn"
+                    onclick="showHelp('matching')">
+                    Organ Matching
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="showHelp('request')">
+                    Organ Requests
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="showHelp('priority')">
+                    Priority System
+                </button>
+
+                <button
+                    class="btn"
+                    onclick="showHelp('general')">
+                    General Help
+                </button>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <h3>Help Response</h3>
+
+            <div id="helpResponse">
+
+                <p class="muted">
+                    Select a topic to get help.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LifeLink - Organ Matching</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="loadMatching()">
+
+    <div id="shell"></div>
+
+    <main class="page">
+
+        <h1>Organ Matching</h1>
+
+        <p>
+            Run the priority-based matching engine to find suitable
+            synthetic organ matches.
+        </p>
+
+        <section class="card">
+
+            <h3>Find Organ Matches</h3>
+
+            <div class="toolbar">
+
+                <select id="matchOrgan">
+                    <option value="">Select required organ</option>
+                    <option value="Kidney">Kidney</option>
+                    <option value="Liver">Liver</option>
+                    <option value="Heart">Heart</option>
+                    <option value="Cornea">Cornea</option>
+                    <option value="Lungs">Lungs</option>
+                </select>
+
+                <button class="btn" onclick="runMatching()">
+                    Run Matching
+                </button>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <h3>Matching Results</h3>
+
+            <div id="matchingResults">
+
+                <p class="muted">
+                    Select an organ and click "Run Matching".
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
