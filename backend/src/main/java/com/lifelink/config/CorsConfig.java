@@ -1,3 +1,4 @@
+
 package com.lifelink.config;
 
 import org.springframework.context.annotation.Bean;
@@ -17,9 +18,13 @@ public class CorsConfig {
                 registry.addMapping("/api/**")
                         .allowedOrigins(
                                 "http://127.0.0.1:5500",
-                                "http://localhost:5500"
+                                "http://localhost:5500",
+                                "https://keerthanavattemla09.github.io"
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods(
+                                "GET", "POST", "PUT",
+                                "DELETE", "OPTIONS"
+                        )
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
