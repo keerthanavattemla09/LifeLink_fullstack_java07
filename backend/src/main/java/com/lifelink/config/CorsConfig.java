@@ -12,21 +12,21 @@ public class CorsConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins(
-                                "http://127.0.0.1:5500",
-                                "http://localhost:5500",
-                                "https://lifelinkfullstackjava07-frontend-cgjcjpt9k.vercel.app"
-                        )
-                        .allowedMethods(
-                                "GET", "POST", "PUT",
-                                "DELETE", "OPTIONS"
-                        )
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+                    .allowedOrigins(
+                        "https://lifelinkfullstackjava07-frontend.vercel.app",
+                        "https://lifelinkfullstackjava07-frontend-cgjcjpt9k.vercel.app",
+                        "http://localhost:5500",
+                        "http://127.0.0.1:5500"
+                    )
+                    .allowedMethods(
+                        "GET", "POST", "PUT", "DELETE", "OPTIONS"
+                    )
+                    .allowedHeaders("Content-Type", "Accept", "Authorization")
+                    .allowCredentials(true)
+                    .maxAge(3600);
             }
         };
     }
