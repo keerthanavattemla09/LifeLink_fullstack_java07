@@ -1,62 +1,382 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LifeLink - Login</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>LifeLink | Login</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #172554, #164e63);
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .layout {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+        }
+
+        .intro {
+            padding: 48px 36px;
+            color: white;
+            background: linear-gradient(150deg, #0f766e, #164e63);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .logo span {
+            color: #99f6e4;
+        }
+
+        .intro h1 {
+            font-size: 35px;
+            line-height: 1.2;
+            margin-bottom: 18px;
+        }
+
+        .intro p {
+            color: #d1fae5;
+            line-height: 1.8;
+            margin-bottom: 26px;
+        }
+
+        .features {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 10px 0;
+            line-height: 1.5;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: #99f6e4;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .login-panel {
+            padding: 44px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-panel h2 {
+            font-size: 29px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 75px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #0f766e;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 5px;
+            background: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-button:hover {
+            background: #115e59;
+        }
+
+        .login-button:disabled {
+            opacity: 0.65;
+            cursor: wait;
+        }
+
+        .message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.info {
+            display: block;
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .demo {
+            margin-top: 24px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.8;
+        }
+
+        .demo h3 {
+            color: #0f172a;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .demo code {
+            color: #0f766e;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 22px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 14px;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+                max-width: 460px;
+            }
+
+            .intro {
+                padding: 28px 25px;
+            }
+
+            .intro h1 {
+                font-size: 27px;
+            }
+
+            .intro p {
+                margin-bottom: 8px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            .logo {
+                font-size: 25px;
+                margin-bottom: 15px;
+            }
+
+            .login-panel {
+                padding: 30px 25px;
+            }
+        }
+    </style>
 </head>
-<body class="login-bg">
-    <div class="login-card">
-        <div class="brand">♥ Life<span>Link</span></div>
 
-        <h1>Welcome Back</h1>
-        <p>Priority-based organ matching and transplant coordination</p>
+<body>
+    <main class="layout">
+        <section class="intro">
+            <div class="logo">Life<span>Link</span></div>
 
-        <div id="error" class="alert hidden" role="alert"></div>
+            <h1>Connecting lives through smarter organ matching.</h1>
 
-        <form id="loginForm">
-            <div class="roles">
-                <label>
-                    <input type="radio" name="role" value="user" checked>
-                    <span>👤 User</span>
-                </label>
+            <p>
+                A priority-based organ matching and transplant coordination
+                platform designed to help recipients and hospitals manage
+                organ requests.
+            </p>
 
-                <label>
-                    <input type="radio" name="role" value="hospital">
-                    <span>🏥 Hospital</span>
-                </label>
+            <ul class="features">
+                <li>View available organs</li>
+                <li>Explore organ matching results</li>
+                <li>Track your submitted requests</li>
+                <li>Access hospital information</li>
+            </ul>
+        </section>
 
-                <label>
-                    <input type="radio" name="role" value="admin">
-                    <span>🛡 Admin</span>
-                </label>
+        <section class="login-panel">
+            <h2>Welcome back</h2>
+            <p class="subtitle">Sign in to continue to your LifeLink account.</p>
+
+            <div id="message" class="message" role="alert"
+                 aria-live="polite"></div>
+
+            <form id="loginForm">
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+
+                    <div class="password-wrapper">
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            class="show-password"
+                            id="togglePassword"
+                            type="button"
+                        >Show</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="role">Login as</label>
+                    <select id="role" name="role" required>
+                        <option value="user">User / Recipient</option>
+                        <option value="hospital">Hospital</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="login-button"
+                >Login</button>
+            </form>
+
+            <div class="demo">
+                <h3>Demo login credentials</h3>
+                <p>User: <code>user</code> / <code>user123</code></p>
+                <p>Hospital: <code>hospital</code> / <code>hosp123</code></p>
+                <p>Admin: <code>admin</code> / <code>admin123</code></p>
+                <p style="margin-top: 7px;">
+                    Use these only if the corresponding demo accounts
+                    exist in your backend.
+                </p>
             </div>
 
-            <label for="username">Username</label>
-            <input id="username" name="username"
-                   placeholder="Enter username"
-                   autocomplete="username" required>
+            <div class="footer">
+                LifeLink — Organ Matching and Transplant Coordination
+            </div>
+        </section>
+    </main>
 
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password"
-                   placeholder="Enter password"
-                   autocomplete="current-password" required>
+    <script>
+        // Show or hide the password.
+        document.getElementById("togglePassword")
+            .addEventListener("click", function () {
+                const password = document.getElementById("password");
 
-            <button id="loginButton" class="primary full" type="submit">
-                Login to Dashboard →
-            </button>
-        </form>
+                if (password.type === "password") {
+                    password.type = "text";
+                    this.textContent = "Hide";
+                } else {
+                    password.type = "password";
+                    this.textContent = "Show";
+                }
+            });
+    </script>
 
-        <div class="demo">
-            <b>Demo credentials</b><br>
-            User: user / user123<br>
-            Hospital: hospital / hosp123<br>
-            Admin: admin / admin123
-        </div>
-    </div>
-
-    <script src="app.js"></script>
+    <!-- Load your existing application JavaScript. -->
+    <script src="js/app.js" defer></script>
 </body>
 </html>
