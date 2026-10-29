@@ -1,374 +1,690 @@
 
-"use strict";
+const API = "https://lifelink-full-stack-java07.onrender.com/api";
 
-const API = "https://lifelink-fullstack-java07.onrender.com/api";
+// ---------- Common API functions ----------
 
-// Send requests to the backend and include session cookies.
-async function apiRequest(endpoint, options = {}) {
-    const response = await fetch(`${API}${endpoint}`, {
+async function apiRequest(path, options = {}) {
+    const headers = {
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(`${API}${path}`, {
         ...options,
-        credentials: "include",
-        headers: {
-            ...(options.body ? {
-                "Content-Type": "application/json"
-            } : {}),
-            ...(options.headers || {})
-        }
+        headers,
+        credentials: "include"
     });
 
-    const responseText = await response.text();
-    let data = {};
+    const contentType = response.headers.get("content-type") || "";
+    let data = null;
 
-    if (responseText) {
-        try {
-            data = JSON.parse(responseText);
-        } catch {
-            data = { message: responseText };
-        }
+    if (contentType.includes("application/json")) {
+        data = await response.json();
+    } else {
+        data = await response.text();
     }
 
     if (!response.ok) {
-        throw new Error(
-            data.message ||
-            data.error ||
-            `Request failed with HTTP ${response.status}`
-        );
+        const message =
+            typeof data === "object" && data !== null
+                ? data.message || data.error || "Request failed"
+                : data || "Request failed";
+
+        const error = new Error(message);
+        error.status = response.status;
+        throw error;
     }
 
     return data;
 }
 
-// Display an error message.
-function showError(element, message) {
+function getArray(data) {
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== "object") return [];
+
+    const keys = [
+        "data",
+        "items",
+        "organs",
+        "requests",
+        "hospitals",
+        "matches",
+        "results",
+        "content"
+    ];
+
+    for (const key of keys) {
+        if (Array.isArray(data[key])) return data[key];
+    }
+
+    return [];
+}
+
+function getElement(...ids) {
+    for (const id of ids) {
+        const element = document.getElementById(id);
+        if (element) return element;
+    }
+    return null;
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
+
+function showMessage(message, type = "info") {
+    const element = getElement(
+        "message",
+        "pageMessage",
+        "loginMessage",
+        "statusMessage"
+    );
+
     if (!element) {
-        console.error(message);
+        console.log(message);
         return;
     }
 
     element.textContent = message;
-    element.classList.remove("hidden");
+    element.className = `message ${type}`;
+    element.style.display = "block";
 }
 
-// Clear an error message.
-function hideError(element) {
-    if (element) {
-        element.textContent = "";
-        element.classList.add("hidden");
-    }
+function showError(error) {
+    console.error(error);
+    showMessage(error.message || "Something went wrong. Please try again.", "error");
 }
 
-// Login.
-async function login() {
-    const usernameInput = document.getElementById("username");
-    const passwordInput = document.getElementById("password");
-    const errorBox = document.getElementById("error");
-    const loginButton = document.getElementById("loginButton");
-    const selectedRole = document.querySelector(
-        'input[name="role"]:checked'
-    );
+function showStatus(status) {
+    const safeStatus = escapeHTML(status || "Unknown");
+    return `<span class="status-badge">${safeStatus}</span>`;
+}
 
-    if (!usernameInput || !passwordInput) {
-        showError(errorBox, "Login form fields were not found.");
-        return;
-    }
+// ---------- Login and session ----------
 
-    hideError(errorBox);
+async function login(event) {
+    if (event) event.preventDefault();
 
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value;
+    const usernameInput = getElement("username");
+    const passwordInput = getElement("password");
+    const roleInput = document.querySelector('input[name="role"]:checked');
 
-    if (!selectedRole) {
-        showError(errorBox, "Please select your role.");
-        return;
-    }
+    const username = usernameInput?.value.trim();
+    const password = passwordInput?.value;
+    const role = roleInput?.value ||
+        getElement("role")?.value ||
+        "user";
 
     if (!username || !password) {
-        showError(errorBox, "Enter username and password.");
+        showMessage("Please enter your username and password.", "error");
         return;
     }
 
-    if (loginButton) {
-        loginButton.disabled = true;
-        loginButton.textContent = "Logging in...";
-    }
-
     try {
-        const data = await apiRequest("/login", {
+        showMessage("Logging in...", "info");
+
+        const result = await apiRequest("/login", {
             method: "POST",
-            body: JSON.stringify({
-                username: username,
-                password: password,
-                role: selectedRole.value
-            })
+            body: JSON.stringify({ username, password, role })
         });
 
-        // Save display information only.
-        // The backend session cookie is required for authentication.
-        sessionStorage.setItem("username", data.username || username);
-        sessionStorage.setItem("role", data.role || selectedRole.value);
-        sessionStorage.setItem("fullName", data.fullName || "");
+        sessionStorage.setItem("username", result.username || username);
+        sessionStorage.setItem("role", result.role || role);
+        sessionStorage.setItem(
+            "fullName",
+            result.fullName || result.username || username
+        );
+
+        // Verify that the backend session is available.
+        await apiRequest("/session");
 
         window.location.href = "dashboard.html";
-
     } catch (error) {
-        console.error("Login error:", error);
-        showError(errorBox, error.message || "Login failed.");
+        showError(error);
+    }
+}
 
-    } finally {
-        if (loginButton) {
-            loginButton.disabled = false;
-            loginButton.textContent = "Login";
+async function requireLogin() {
+    try {
+        const user = await apiRequest("/session");
+
+        if (user.username) {
+            sessionStorage.setItem("username", user.username);
         }
+
+        if (user.role) {
+            sessionStorage.setItem("role", user.role);
+        }
+
+        if (user.fullName) {
+            sessionStorage.setItem("fullName", user.fullName);
+        }
+
+        return user;
+    } catch (error) {
+        if (error.status === 401 || error.status === 403) {
+            sessionStorage.removeItem("username");
+            sessionStorage.removeItem("role");
+            sessionStorage.removeItem("fullName");
+            window.location.href = "index.html";
+            return null;
+        }
+
+        showError(error);
+        return null;
     }
 }
 
-// Check whether the backend recognizes the login session.
-async function checkSession() {
-    return apiRequest("/session", {
-        method: "GET"
-    });
-}
-
-// Safely update a dashboard element if it exists.
-function setElementText(id, value) {
-    const element = document.getElementById(id);
-
-    if (element && value !== undefined && value !== null) {
-        element.textContent = value;
-    }
-}
-
-// Load dashboard data.
-async function loadDashboard() {
-    const dashboardError = document.getElementById("dashboardError");
-
-    hideError(dashboardError);
+async function logout(event) {
+    if (event) event.preventDefault();
 
     try {
-        // Verify authentication first.
-        const session = await checkSession();
-
-        console.log("Session verified:", session);
-
-        const username =
-            session.username ||
-            sessionStorage.getItem("username") ||
-            "User";
-
-        const role =
-            session.role ||
-            sessionStorage.getItem("role") ||
-            "user";
-
-        setElementText(
-            "welcome",
-            `Welcome, ${username} (${role})`
-        );
-
-        setElementText("topUser", username);
-        setElementText("profile", `Username: ${username} | Role: ${role}`);
-
-        // Fetch dashboard information.
-        const data = await apiRequest("/dashboard", {
-            method: "GET"
-        });
-
-        console.log("Dashboard response:", data);
-
-        // Update these values when matching fields exist in the API response.
-        setElementText("totalUsers", data.totalUsers);
-        setElementText("totalHospitals", data.totalHospitals);
-        setElementText("totalOrgans", data.totalOrgans);
-        setElementText("totalRequests", data.totalRequests);
-
-        // Also support alternate IDs used in some dashboard layouts.
-        setElementText(
-            "organsCount",
-            data.availableOrgans ?? data.organsCount
-        );
-
-        setElementText(
-            "hospitalCount",
-            data.registeredHospitals ?? data.hospitalCount
-        );
-
-        setElementText(
-            "requestCount",
-            data.myRequests ?? data.requestCount
-        );
-
+        await apiRequest("/logout", { method: "POST" });
     } catch (error) {
-        console.error("Dashboard loading error:", error);
-
-        if (error.message.includes("401")) {
-            showError(
-                dashboardError,
-                "Your session could not be verified. Please log in again. If this continues, the session cookie is not reaching the backend."
-            );
-        } else {
-            showError(
-                dashboardError,
-                "Unable to load dashboard: " + error.message
-            );
-        }
-    }
-}
-
-// Logout.
-async function logout() {
-    try {
-        await apiRequest("/logout", {
-            method: "POST"
-        });
-
-    } catch (error) {
-        console.error("Logout error:", error);
-
+        console.warn("Logout request failed:", error);
     } finally {
         sessionStorage.removeItem("username");
         sessionStorage.removeItem("role");
         sessionStorage.removeItem("fullName");
-
         window.location.href = "index.html";
     }
 }
 
-// Initialize the page.
-document.addEventListener("DOMContentLoaded", () => {
-    const loginForm = document.getElementById("loginForm");
+// ---------- Dashboard ----------
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", event => {
-            event.preventDefault();
-            login();
-        });
+async function loadDashboard() {
+    try {
+        const data = await apiRequest("/dashboard");
+
+        const user = data.user || {};
+
+        const nameElement = getElement(
+            "userName", "fullName", "welcomeName", "usernameDisplay"
+        );
+
+        if (nameElement) {
+            nameElement.textContent =
+                user.fullName ||
+                sessionStorage.getItem("fullName") ||
+                sessionStorage.getItem("username") ||
+                "User";
+        }
+
+        const bloodGroup = getElement("bloodGroup");
+        if (bloodGroup) {
+            bloodGroup.textContent = user.bloodGroup || "Not available";
+        }
+
+        const age = getElement("age");
+        if (age) age.textContent = user.age ?? "Not available";
+
+        const requiredOrgan = getElement("requiredOrgan");
+        if (requiredOrgan) {
+            requiredOrgan.textContent = user.requiredOrgan || "Not available";
+        }
+
+        const availableOrgans = getElement("availableOrgans");
+        if (availableOrgans) {
+            availableOrgans.textContent = data.availableOrgans ?? 0;
+        }
+
+        const hospitals = getElement("hospitals", "hospitalCount");
+        if (hospitals) hospitals.textContent = data.hospitals ?? 0;
+
+        const requests = getElement("requests", "requestCount");
+        if (requests) requests.textContent = data.requests ?? 0;
+    } catch (error) {
+        showError(error);
     }
+}
 
-    const logoutButton = document.getElementById("logoutButton");
+// ---------- Organs ----------
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", event => {
-            event.preventDefault();
-            logout();
-        });
-    }
-
-    // This call was missing from your saved version.
-    const currentPage = window.location.pathname.toLowerCase();
-
-    if (currentPage.endsWith("/dashboard.html") ||
-        currentPage.endsWith("dashboard.html")) {
-        loadDashboard();
-    }
-});
-
-/* ===============================
-   AVAILABLE ORGANS PAGE
-================================ */
-
-let allOrgans = [];
+let cachedOrgans = [];
 
 async function loadOrgans() {
-    const container = document.getElementById("organCards");
-
-    if (!container) return;
-
-    container.innerHTML = "<p>Loading available organs...</p>";
+    const container = getElement(
+        "organCards", "organsList", "organsContainer"
+    );
 
     try {
-        const organs = await apiRequest("/organs", {
-            method: "GET"
-        });
+        const data = await apiRequest("/organs");
+        cachedOrgans = getArray(data);
 
-        // Accept either a JSON array or an object containing the array.
-        allOrgans = Array.isArray(organs)
-            ? organs
-            : organs.organs || organs.content || [];
-
-        console.log("Organs loaded:", allOrgans);
-
-        if (allOrgans.length === 0) {
-            container.innerHTML = "<p>No available organs found.</p>";
+        if (!container) {
+            console.warn("Organ display container was not found.");
             return;
         }
 
-        filterCards();
-
+        renderOrgans(cachedOrgans);
     } catch (error) {
-        console.error("Organs loading error:", error);
-        container.innerHTML =
-            `<p>Unable to load organs: ${error.message}</p>`;
+        showError(error);
+        if (container) {
+            container.innerHTML = "<p>Unable to load available organs.</p>";
+        }
     }
 }
 
-function filterCards() {
-    const container = document.getElementById("organCards");
+function renderOrgans(organs) {
+    const container = getElement(
+        "organCards", "organsList", "organsContainer"
+    );
 
     if (!container) return;
 
-    const searchInput = document.getElementById("search");
-    const bloodInput = document.getElementById("blood");
-
-    const searchText = searchInput
-        ? searchInput.value.trim().toLowerCase()
-        : "";
-
-    const selectedBlood = bloodInput ? bloodInput.value : "";
-
-    const filteredOrgans = allOrgans.filter(organ => {
-        const organName = String(organ.organType || "").toLowerCase();
-        const hospitalName = String(
-            organ.hospital?.name || ""
-        ).toLowerCase();
-
-        const matchesSearch =
-            organName.includes(searchText) ||
-            hospitalName.includes(searchText);
-
-        const matchesBlood =
-            !selectedBlood || organ.bloodGroup === selectedBlood;
-
-        const matchesStatus =
-            !organ.status ||
-            organ.status.toLowerCase() === "available";
-
-        return matchesSearch && matchesBlood && matchesStatus;
-    });
-
-    if (filteredOrgans.length === 0) {
-        container.innerHTML = "<p>No matching organs found.</p>";
+    if (!organs.length) {
+        container.innerHTML = "<p>No available organs found.</p>";
         return;
     }
 
-    container.innerHTML = filteredOrgans.map(organ => {
-        const hospital = organ.hospital || {};
-
-        // Use textContent-based escaping to avoid inserting API text as HTML.
-        const escapeHTML = value => {
-            const element = document.createElement("span");
-            element.textContent = String(value ?? "");
-            return element.innerHTML;
-        };
+    container.innerHTML = organs.map(organ => {
+        const id = organ.id ?? organ.organId;
+        const name = organ.organType ?? organ.organ ?? organ.name ?? "Organ";
+        const blood = organ.bloodGroup ?? "Not specified";
+        const hospital = organ.hospitalName ??
+            organ.hospital?.name ??
+            organ.hospital ??
+            "Not specified";
+        const city = organ.city ?? organ.hospital?.city ?? "";
 
         return `
-            <article class="card">
-                <h2>${escapeHTML(organ.organType || "Organ")}</h2>
-                <p><strong>Blood Group:</strong>
-                    ${escapeHTML(organ.bloodGroup || "Not specified")}
-                </p>
-                <p><strong>Quantity:</strong>
-                    ${escapeHTML(organ.quantity ?? 0)}
-                </p>
+            <article class="organ-card">
+                <h3>${escapeHTML(name)}</h3>
+                <p><strong>Blood group:</strong> ${escapeHTML(blood)}</p>
+                <p><strong>Hospital:</strong> ${escapeHTML(hospital)}</p>
+                <p><strong>City:</strong> ${escapeHTML(city)}</p>
                 <p><strong>Status:</strong>
-                    ${escapeHTML(organ.status || "Available")}
+                    ${showStatus(organ.status || "Available")}
                 </p>
-                <p><strong>Hospital:</strong>
-                    ${escapeHTML(hospital.name || "Not specified")}
-                </p>
-                <p><strong>City:</strong>
-                    ${escapeHTML(hospital.city || "Not specified")}
-                </p>
+                <button type="button"
+                    data-request-organ="${escapeHTML(id ?? "")}"
+                    ${id == null ? "disabled" : ""}>
+                    Request Organ
+                </button>
             </article>
         `;
     }).join("");
+
+    container.querySelectorAll("[data-request-organ]").forEach(button => {
+        button.addEventListener("click", () => {
+            createOrganRequest(button.dataset.requestOrgan);
+        });
+    });
 }
+
+function filterOrgans() {
+    const search = (
+        getElement("search", "organSearch")?.value || ""
+    ).toLowerCase();
+
+    const blood = getElement("blood", "bloodFilter")?.value || "";
+
+    const filtered = cachedOrgans.filter(organ => {
+        const name = String(
+            organ.organType ?? organ.organ ?? organ.name ?? ""
+        ).toLowerCase();
+
+        const hospital = String(
+            organ.hospitalName ?? organ.hospital?.name ?? organ.hospital ?? ""
+        ).toLowerCase();
+
+        const matchesSearch =
+            name.includes(search) || hospital.includes(search);
+
+        const matchesBlood =
+            !blood || String(organ.bloodGroup || "") === blood;
+
+        return matchesSearch && matchesBlood;
+    });
+
+    renderOrgans(filtered);
+}
+
+// ---------- Organ matching ----------
+
+async function loadMatching() {
+    const container = getElement(
+        "matchingResults", "matchingCards", "matchResults"
+    );
+
+    const organSelect = getElement(
+        "organType", "requiredOrgan", "organ"
+    );
+
+    const organ = organSelect?.value || "Kidney";
+
+    if (container) {
+        container.innerHTML = "<p>Finding matching organs...</p>";
+    }
+
+    try {
+        const data = await apiRequest(
+            `/matching?organ=${encodeURIComponent(organ)}`
+        );
+
+        console.log("Matching API response:", data);
+
+        const matches = getArray(data);
+
+        if (!container) {
+            console.warn("Matching results container was not found.");
+            return;
+        }
+
+        if (!matches.length) {
+            container.innerHTML =
+                "<p>No matching organs were found.</p>";
+            return;
+        }
+
+        container.innerHTML = matches.map(match => {
+            const matchedOrgan = match.organ &&
+                typeof match.organ === "object"
+                ? match.organ
+                : match;
+
+            const id = matchedOrgan.id ??
+                matchedOrgan.organId ??
+                match.organId;
+
+            const name = matchedOrgan.organType ??
+                matchedOrgan.name ??
+                matchedOrgan.organ ??
+                organ;
+
+            const score = match.score ??
+                match.matchingScore ??
+                match.priorityScore ??
+                match.matchScore;
+
+            const hospital = matchedOrgan.hospitalName ??
+                matchedOrgan.hospital?.name ??
+                matchedOrgan.hospital ??
+                "Not specified";
+
+            const blood = matchedOrgan.bloodGroup || "Not specified";
+
+            return `
+                <article class="matching-card">
+                    <h3>${escapeHTML(name)}</h3>
+                    <p><strong>Blood group:</strong> ${escapeHTML(blood)}</p>
+                    <p><strong>Hospital:</strong> ${escapeHTML(hospital)}</p>
+                    ${
+                        score !== undefined
+                            ? `<p><strong>Matching score:</strong> ${escapeHTML(score)}%</p>`
+                            : ""
+                    }
+                    <button type="button"
+                        data-request-organ="${escapeHTML(id ?? "")}"
+                        ${id == null ? "disabled" : ""}>
+                        Request Organ
+                    </button>
+                </article>
+            `;
+        }).join("");
+
+        container.querySelectorAll("[data-request-organ]").forEach(button => {
+            button.addEventListener("click", () => {
+                createOrganRequest(button.dataset.requestOrgan);
+            });
+        });
+    } catch (error) {
+        showError(error);
+
+        if (container) {
+            container.innerHTML =
+                "<p>Unable to load matching results. Please try again.</p>";
+        }
+    }
+}
+
+// ---------- Create an organ request ----------
+
+async function createOrganRequest(organId) {
+    if (!organId) {
+        showMessage("The organ ID is missing.", "error");
+        return;
+    }
+
+    try {
+        const result = await apiRequest(
+            `/requests/${encodeURIComponent(organId)}`,
+            { method: "POST" }
+        );
+
+        showMessage(
+            result.message || "Organ request submitted successfully.",
+            "success"
+        );
+
+        await loadRequests();
+    } catch (error) {
+        showError(error);
+    }
+}
+
+// ---------- Requests ----------
+
+async function loadRequests() {
+    const container = getElement(
+        "requestsList", "requestCards", "requestsContainer"
+    );
+
+    try {
+        const data = await apiRequest("/requests");
+        const requests = getArray(data);
+
+        if (!container) {
+            console.warn("Requests display container was not found.");
+            return;
+        }
+
+        if (!requests.length) {
+            container.innerHTML = "<p>No requests found.</p>";
+            return;
+        }
+
+        container.innerHTML = requests.map(request => `
+            <article class="request-card">
+                <h3>Request #${escapeHTML(request.id ?? "")}</h3>
+                <p><strong>Organ:</strong>
+                    ${escapeHTML(request.organ?.organType ??
+                        request.organ?.name ??
+                        request.organ ??
+                        "Not specified")}
+                </p>
+                <p><strong>Blood group:</strong>
+                    ${escapeHTML(request.bloodGroup || "Not specified")}
+                </p>
+                <p><strong>Hospital:</strong>
+                    ${escapeHTML(request.hospital?.name ??
+                        request.hospital ??
+                        "Not specified")}
+                </p>
+                <p><strong>City:</strong>
+                    ${escapeHTML(request.city || "Not specified")}
+                </p>
+                <p><strong>Priority score:</strong>
+                    ${escapeHTML(request.priorityScore ?? "Not available")}
+                </p>
+                <p><strong>Status:</strong>
+                    ${showStatus(request.status)}
+                </p>
+                <p><strong>Created:</strong>
+                    ${escapeHTML(request.createdAt || "Not available")}
+                </p>
+            </article>
+        `).join("");
+    } catch (error) {
+        showError(error);
+
+        if (container) {
+            container.innerHTML = "<p>Unable to load requests.</p>";
+        }
+    }
+}
+
+// ---------- Hospitals ----------
+
+async function loadHospitals() {
+    const container = getElement(
+        "hospitalsList", "hospitalCards", "hospitalsContainer"
+    );
+
+    try {
+        const data = await apiRequest("/hospitals");
+        const hospitals = getArray(data);
+
+        if (!container) {
+            console.warn("Hospitals display container was not found.");
+            return;
+        }
+
+        if (!hospitals.length) {
+            container.innerHTML = "<p>No hospitals found.</p>";
+            return;
+        }
+
+        container.innerHTML = hospitals.map(hospital => `
+            <article class="hospital-card">
+                <h3>${escapeHTML(hospital.name || "Hospital")}</h3>
+                <p><strong>City:</strong>
+                    ${escapeHTML(hospital.city || "Not specified")}
+                </p>
+                <p><strong>Phone:</strong>
+                    ${escapeHTML(hospital.phone || "Not available")}
+                </p>
+            </article>
+        `).join("");
+    } catch (error) {
+        showError(error);
+
+        if (container) {
+            container.innerHTML = "<p>Unable to load hospitals.</p>";
+        }
+    }
+}
+
+// ---------- Help page ----------
+
+function loadHelp() {
+    const container = getElement(
+        "helpContent", "helpContainer", "helpSection"
+    );
+
+    // If the page already contains its help content, leave it unchanged.
+    if (!container) {
+        console.log("Help page loaded.");
+        return;
+    }
+
+    if (container.children.length > 0) return;
+
+    container.innerHTML = `
+        <section>
+            <h2>LifeLink Help</h2>
+            <h3>How to use LifeLink</h3>
+            <ol>
+                <li>Log in using your account and role.</li>
+                <li>View the dashboard for summary information.</li>
+                <li>Browse available organs or check matching results.</li>
+                <li>Submit a request for an available organ.</li>
+                <li>Check the Requests page to view request status.</li>
+                <li>Visit the Hospitals page to view hospital information.</li>
+            </ol>
+            <p>For login or data-loading problems, check your connection
+            and contact your system administrator.</p>
+        </section>
+    `;
+}
+
+// ---------- Global functions for HTML onload attributes ----------
+
+// These assignments fix "loadMatching is not defined",
+// "loadRequests is not defined", and similar errors.
+window.login = login;
+window.requireLogin = requireLogin;
+window.logout = logout;
+window.loadDashboard = loadDashboard;
+window.loadOrgans = loadOrgans;
+window.loadMatching = loadMatching;
+window.loadRequests = loadRequests;
+window.loadHospitals = loadHospitals;
+window.loadHelp = loadHelp;
+window.filterOrgans = filterOrgans;
+
+// ---------- Automatic page setup ----------
+
+document.addEventListener("DOMContentLoaded", () => {
+    const page = window.location.pathname
+        .split("/")
+        .pop()
+        .toLowerCase();
+
+    const loginForm = getElement("loginForm");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", login);
+    }
+
+    const logoutButton = getElement("logoutButton");
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", logout);
+    }
+
+    const searchInput = getElement("search", "organSearch");
+    const bloodFilter = getElement("blood", "bloodFilter");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", filterOrgans);
+    }
+
+    if (bloodFilter) {
+        bloodFilter.addEventListener("change", filterOrgans);
+    }
+
+    // HTML pages may already use body onload attributes.
+    // Do not call the same page loader twice here.
+    const protectedPages = [
+        "dashboard.html",
+        "organs.html",
+        "matching.html",
+        "requests.html",
+        "hospitals.html",
+        "help.html"
+    ];
+
+    if (protectedPages.includes(page)) {
+        requireLogin().then(user => {
+            if (!user) return;
+
+            switch (page) {
+                case "dashboard.html":
+                    loadDashboard();
+                    break;
+                case "organs.html":
+                    loadOrgans();
+                    break;
+                case "matching.html":
+                    loadMatching();
+                    break;
+                case "requests.html":
+                    loadRequests();
+                    break;
+                case "hospitals.html":
+                    loadHospitals();
+                    break;
+                case "help.html":
+                    loadHelp();
+                    break;
+            }
+        });
+    }
+});
