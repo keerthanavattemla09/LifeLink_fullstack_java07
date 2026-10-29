@@ -1,208 +1,141 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>LifeLink Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body onload="loadDashboard()">
 
+    <!-- Top Navigation -->
     <header class="topbar">
 
-        <a
-            class="logo"
-            href="dashboard.html">
-
+        <a class="logo" href="dashboard.html">
             ♥ <b>Life</b>Link
-
         </a>
 
         <div id="topUser">
-
             Demo User
-
-            <button
-                class="linkbtn"
-                onclick="logout()">
-
+            <button class="linkbtn" onclick="logout()">
                 Logout
-
             </button>
-
         </div>
 
     </header>
 
+    <!-- Main Layout -->
     <div class="layout">
 
+        <!-- Sidebar -->
         <aside>
 
             <div class="side-title">
                 USER MENU
             </div>
 
-            <a href="dashboard.html">
-                ▦ Dashboard
-            </a>
-
-            <a href="organs.html">
-                ♥ Available Organs
-            </a>
-
-            <a href="matching.html">
-                ⚙ Organ Matching
-            </a>
-
-            <a href="requests.html">
-                ▤ My Requests
-            </a>
-
-            <a href="hospitals.html">
-                ▣ Hospital Directory
-            </a>
-
-            <a href="help.html">
-                ◉ Multilingual AI Help
-            </a>
+            <a href="dashboard.html">▦ Dashboard</a>
+            <a href="organs.html">♥ Available Organs</a>
+            <a href="matching.html">⚙ Organ Matching</a>
+            <a href="requests.html">▤ My Requests</a>
+            <a href="hospitals.html">▣ Hospital Directory</a>
+            <a href="help.html">◉ Multilingual AI Help</a>
 
         </aside>
 
+        <!-- Dashboard Content -->
         <main class="page">
 
+            <!-- Welcome Section -->
             <section class="hero">
 
                 <div>
-
-                    <h1>
-                        Every Match Can Save a Life.
-                    </h1>
+                    <h1>Every Match Can Save a Life.</h1>
 
                     <p>
-                        Connecting recipients, hospitals and
-                        synthetic organ inventory through a
-                        transparent priority-based prototype.
+                        Connecting recipients, hospitals and organ
+                        inventory through a transparent,
+                        priority-based prototype.
                     </p>
-
                 </div>
 
-                <div class="hero-icon">
-                    ♥
-                </div>
+                <div class="hero-icon">♥</div>
 
             </section>
 
             <h2>Dashboard</h2>
 
-            <div class="stats">
+            <!-- Dashboard Statistics -->
+            <section class="stats">
 
                 <div class="stat">
-
-                    <b id="organsCount">
-                        0
-                    </b>
-
-                    <span>
-                        Available organs
-                    </span>
-
+                    <b id="organsCount">0</b>
+                    <span>Available organs</span>
                 </div>
 
                 <div class="stat">
-
-                    <b id="hospitalCount">
-                        0
-                    </b>
-
-                    <span>
-                        Registered hospitals
-                    </span>
-
+                    <b id="hospitalCount">0</b>
+                    <span>Registered hospitals</span>
                 </div>
 
                 <div class="stat">
+                    <b id="requestCount">0</b>
+                    <span>My requests</span>
+                </div>
 
-                    <b id="requestCount">
-                        0
-                    </b>
+            </section>
 
-                    <span>
-                        My requests
-                    </span>
+            <!-- Profile and Quick Actions -->
+            <section class="grid-2">
+
+                <div class="card">
+
+                    <h3>Recipient Profile</h3>
+
+                    <div id="profile">
+                        Loading profile...
+                    </div>
 
                 </div>
 
-            </div>
+                <div class="card">
 
-            <div class="grid-2">
+                    <h3>Quick Actions</h3>
 
-                <section class="card">
-
-                    <h3>
-                        Recipient Profile
-                    </h3>
-
-                    <div id="profile"></div>
-
-                </section>
-
-                <section class="card">
-
-                    <h3>
-                        Quick Actions
-                    </h3>
-
-                    <a
-                        class="action"
-                        href="organs.html">
-
+                    <a class="action" href="organs.html">
                         🔎 Browse Available Organs
-
                     </a>
 
-                    <a
-                        class="action"
-                        href="matching.html">
-
+                    <a class="action" href="matching.html">
                         🧠 Run Matching Engine
-
                     </a>
 
-                    <a
-                        class="action"
-                        href="requests.html">
-
+                    <a class="action" href="requests.html">
                         📋 Track My Requests
-
                     </a>
 
-                    <a
-                        class="action"
-                        href="hospitals.html">
-
+                    <a class="action" href="hospitals.html">
                         🗺 Find Hospitals
-
                     </a>
 
-                </section>
+                </div>
 
-            </div>
+            </section>
+
+            <!-- API Error Message -->
+            <p id="dashboardError" role="alert"></p>
 
         </main>
 
     </div>
 
+    <!-- Load JavaScript -->
     <script src="app.js"></script>
 
 </body>
-
 </html>
